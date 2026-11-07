@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Certificate Verification — Stypendless</title>
+  <meta name="description" content="Verify the authenticity of Stypendless Virtual Internship completion certificates and digital credentials.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-primary: #FFFFFF;
+      --bg-secondary: #F8FAFC;
+      --bg-tertiary: #F1F5F9;
+      --text-primary: #0F172A;
+      --text-secondary: #475569;
+      --text-muted: #64748B;
+      --border-color: #E2E8F0;
+      --primary: #0F172A;
+      --accent-blue: #2563EB;
+      --success: #059669;
+      --success-light: #ECFDF5;
+      --warning: #D97706;
+      --warning-light: #FFFBEB;
+      --error: #DC2626;
+      --error-light: #FEF2F2;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
+      --font-sans: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header-nav {
+      background-color: var(--bg-primary);
+      border-bottom: 1px solid var(--border-color);
+      padding: 1rem 1.5rem;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.65rem;
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      text-decoration: none;
+    }
+
+    .brand-icon {
+      width: 30px;
+      height: 30px;
+      background-color: var(--primary);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #FFFFFF;
+    }
+
+    .main-wrap {
+      flex-grow: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1.5rem;
+    }
+
+    .card {
+      background-color: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 2.25rem;
+      box-shadow: var(--shadow-md);
+      width: 100%;
+    }
+
+    .search-box {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .input-code {
+      flex-grow: 1;
+      padding: 0.75rem 1rem;
+      font-size: 0.95rem;
+      font-family: var(--font-mono);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      outline: none;
+    }
+
+    .input-code:focus {
+      border-color: var(--accent-blue);
+    }
+
+    .btn {
+      padding: 0.75rem 1.4rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      background-color: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background-color: #1E293B;
+    }
+
+    /* Verification Results */
+    .status-panel {
+      padding: 1.25rem;
+      border-radius: var(--radius-md);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.85rem;
+    }
+
+    .status-panel.verified {
+      background-color: var(--success-light);
+      border: 1px solid #A7F3D0;
+      color: var(--success);
+    }
+
+    .status-panel.pending {
+      background-color: var(--warning-light);
+      border: 1px solid #FDE68A;
+      color: var(--warning);
+    }
+
+    .status-panel.invalid {
+      background-color: var(--error-light);
+      border: 1px solid #FECACA;
+      color: var(--error);
+    }
+
+    .status-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.2rem;
+    }
+
+    .status-desc {
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+
+    .details-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+
+    .details-table tr {
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .details-table tr:last-child {
+      border-bottom: none;
+    }
+
+    .details-table td {
+      padding: 0.75rem 0;
+      font-size: 0.875rem;
+    }
+
+    .details-table td.label {
+      color: var(--text-muted);
+      width: 40%;
+      font-weight: 500;
+    }
+
+    .details-table td.val {
+      font-weight: 700;
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+    }
+
+    .footer {
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border-color);
+      background-color: var(--bg-primary);
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header-nav">
+    <div class="container" style="display: flex; align-items: center; justify-content: space-between;">
+      <a href="main.html" class="brand-logo">
+        <div class="brand-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+        </div>
+        <span>STYPENDLESS</span>
+      </a>
+      <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;">Credential Registry</span>
+    </div>
+  </header>
+
+  <main class="main-wrap">
+    <div class="container">
+      <div class="card">
+        <h1 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.4rem;">Certificate Verification</h1>
+        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+          Verify digital credentials issued by Stypendless Virtual Internship Platform.
+        </p>
+
+        <form id="verifyForm" class="search-box">
+          <input type="text" id="certInput" class="input-code" placeholder="Enter Certificate ID (e.g. STP-CERT-2026-XXXX)" required>
+          <button type="submit" class="btn" id="verifyBtn">Verify</button>
+        </form>
+
+        <div id="resultContainer" style="display: none;">
+          <div id="statusPanel" class="status-panel">
+            <div>
+              <div class="status-title" id="statusTitle">—</div>
+              <div class="status-desc" id="statusDesc">—</div>
+            </div>
+          </div>
+
+          <div id="metadataBox" style="display: none;">
+            <table class="details-table">
+              <tr>
+                <td class="label">Recipient Name</td>
+                <td class="val" id="resName">—</td>
+              </tr>
+              <tr>
+                <td class="label">Internship Domain</td>
+                <td class="val" id="resDomain">—</td>
+              </tr>
+              <tr>
+                <td class="label">Internship Duration</td>
+                <td class="val" id="resDuration">—</td>
+              </tr>
+              <tr>
+                <td class="label">Intern ID</td>
+                <td class="val" id="resInternId">—</td>
+              </tr>
+              <tr>
+                <td class="label">Certificate ID</td>
+                <td class="val" id="resCertId">—</td>
+              </tr>
+              <tr>
+                <td class="label">Performance Remark</td>
+                <td class="val" id="resPerformance" style="color: var(--success);">—</td>
+              </tr>
+              <tr>
+                <td class="label">Issuing Authority</td>
+                <td class="val">Stypendless Academic Operations</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    &copy; 2026 Stypendless Platform. Official Document Registry.
+  </footer>
+
+  <script>
+    const API_BASE_URL = "http://localhost:5000";
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const certId = urlParams.get("certId");
+      if (certId) {
+        document.getElementById("certInput").value = certId;
+        verifyCertificate(certId);
+      }
+
+      document.getElementById("verifyForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const inputVal = document.getElementById("certInput").value.trim();
+        if (inputVal) {
+          verifyCertificate(inputVal);
+        }
+      });
+    });
+
+    async function verifyCertificate(certificateId) {
+      const container = document.getElementById("resultContainer");
+      const panel = document.getElementById("statusPanel");
+      const title = document.getElementById("statusTitle");
+      const desc = document.getElementById("statusDesc");
+      const metaBox = document.getElementById("metadataBox");
+
+      container.style.display = "block";
+      panel.className = "status-panel pending";
+      title.textContent = "Verifying with Registry...";
+      desc.textContent = "Querying digital ledger for credential authenticity...";
+      metaBox.style.display = "none";
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/verify/${encodeURIComponent(certificateId)}`);
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          const cert = result.data;
+          metaBox.style.display = "block";
+
+          document.getElementById("resName").textContent = cert.studentName;
+          document.getElementById("resDomain").textContent = cert.domain;
+          document.getElementById("resDuration").textContent = cert.duration;
+          document.getElementById("resInternId").textContent = cert.internId;
+          document.getElementById("resCertId").textContent = cert.certificateId;
+          document.getElementById("resPerformance").textContent = cert.performanceRemark;
+
+          if (cert.verificationStatus === "Verified") {
+            panel.className = "status-panel verified";
+            title.textContent = "VERIFIED CREDENTIAL";
+            desc.textContent = "This official Stypendless Completion Certificate is authentic, valid, and fully verified by our administrative board.";
+          } else {
+            panel.className = "status-panel pending";
+            title.textContent = "ISSUED — LINKEDIN REVIEW PENDING";
+            desc.textContent = "This certificate has been legitimately issued. Final public verification activation is currently in progress pending administrative review of the recipient's LinkedIn completion post.";
+          }
+        } else {
+          panel.className = "status-panel invalid";
+          title.textContent = "UNVERIFIED OR INVALID CREDENTIAL";
+          desc.textContent = result.error || "The entered Certificate ID does not correspond to any valid Stypendless credential record.";
+          metaBox.style.display = "none";
+        }
+      } catch (err) {
+        panel.className = "status-panel invalid";
+        title.textContent = "CONNECTION ERROR";
+        desc.textContent = "Unable to connect to verification server. Please verify your connection.";
+        metaBox.style.display = "none";
+      }
+    }
+  </script>
+</body>
+</html>
