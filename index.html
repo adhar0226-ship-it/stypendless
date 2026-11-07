@@ -1111,6 +1111,77 @@
         grid-template-columns: 1fr;
       }
     }
+
+    /* Certificate Verification Portal */
+    .verify-box {
+      max-width: 720px;
+      margin: 0 auto;
+      background-color: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 2.25rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .verify-search-row {
+      display: flex;
+      gap: 0.65rem;
+      margin-bottom: 1.5rem;
+    }
+    .verify-input {
+      flex-grow: 1;
+      padding: 0.75rem 1rem;
+      font-size: 0.95rem;
+      font-family: var(--font-mono);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      outline: none;
+    }
+    .verify-input:focus { border-color: var(--accent-blue); }
+    .status-panel {
+      padding: 1.25rem;
+      border-radius: var(--radius-md);
+      margin-bottom: 1.5rem;
+    }
+    .status-panel.verified {
+      background-color: var(--success-light);
+      border: 1px solid #A7F3D0;
+      color: var(--success);
+    }
+    .status-panel.pending {
+      background-color: var(--warning-light);
+      border: 1px solid #FDE68A;
+      color: var(--warning);
+    }
+    .status-panel.invalid {
+      background-color: var(--error-light);
+      border: 1px solid #FECACA;
+      color: var(--error);
+    }
+    .verify-details-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    .verify-details-table tr {
+      border-bottom: 1px solid var(--border-color);
+    }
+    .verify-details-table tr:last-child {
+      border-bottom: none;
+    }
+    .verify-details-table td {
+      padding: 0.65rem 0;
+      font-size: 0.875rem;
+    }
+    .verify-details-table td.label {
+      color: var(--text-muted);
+      width: 38%;
+      font-weight: 500;
+    }
+    .verify-details-table td.val {
+      font-weight: 700;
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+    }
   </style>
 </head>
 <body>
@@ -1136,6 +1207,7 @@
           <li><a href="#domains" class="nav-link">Explore Internships</a></li>
           <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
           <li><a href="#about" class="nav-link">About</a></li>
+          <li><a href="#verify" class="nav-link">Verify Certificate</a></li>
           <li>
             <!-- Placeholder for Structured Fixed-Batch Internship Offering -->
             <a href="#" id="structuredInternshipLink" class="nav-link">
@@ -1753,6 +1825,68 @@
   </section>
 
   <!-- ==========================================================================
+       CERTIFICATE VERIFICATION PORTAL SECTION
+       ========================================================================== -->
+  <section class="section" id="verify" style="background-color: var(--bg-secondary); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+    <div class="container">
+      <div class="section-title-wrap">
+        <div class="badge-pill">Registry & Authenticity</div>
+        <h2 class="section-title">Certificate Verification Portal</h2>
+        <p class="section-subtitle">
+          Verify digital credentials and completion certificates issued by the Stypendless Virtual Internship Platform.
+        </p>
+      </div>
+
+      <div class="verify-box">
+        <form id="publicVerifyForm" class="verify-search-row">
+          <input type="text" id="publicCertInput" class="verify-input" placeholder="Enter Certificate ID (e.g. STP-CERT-2026-XXXXX)" required>
+          <button type="submit" class="btn btn-primary" id="publicVerifyBtn">Verify Credential</button>
+        </form>
+
+        <div id="verifyResultContainer" style="display: none;">
+          <div id="verifyStatusPanel" class="status-panel">
+            <h4 id="verifyStatusTitle" style="font-size: 1.05rem; font-weight: 800; margin-bottom: 0.25rem;">—</h4>
+            <p id="verifyStatusDesc" style="font-size: 0.85rem; line-height: 1.5;">—</p>
+          </div>
+
+          <div id="verifyMetadataBox" style="display: none;">
+            <table class="verify-details-table">
+              <tr>
+                <td class="label">Recipient Intern</td>
+                <td class="val" id="vRecipientName">—</td>
+              </tr>
+              <tr>
+                <td class="label">Internship Domain</td>
+                <td class="val" id="vDomain">—</td>
+              </tr>
+              <tr>
+                <td class="label">Completed Duration</td>
+                <td class="val" id="vDuration">—</td>
+              </tr>
+              <tr>
+                <td class="label">Intern ID</td>
+                <td class="val" id="vInternId">—</td>
+              </tr>
+              <tr>
+                <td class="label">Certificate ID</td>
+                <td class="val" id="vCertId" style="color: var(--accent-blue);">—</td>
+              </tr>
+              <tr>
+                <td class="label">Performance Remark</td>
+                <td class="val" id="vPerformance" style="color: var(--success);">—</td>
+              </tr>
+              <tr>
+                <td class="label">Issuing Authority</td>
+                <td class="val">Stypendless Academic Operations</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
        FREQUENTLY ASKED QUESTIONS (FAQ)
        ========================================================================== -->
   <section class="section" id="faq">
@@ -2146,6 +2280,9 @@
 
       // 8. FAQ Accordion
       setupFaqAccordion();
+
+      // 9. Certificate Public Verification Portal
+      setupPublicVerification();
     });
 
     /**
@@ -2527,6 +2664,92 @@
           }
         });
       });
+    }
+
+    /**
+     * Certificate Public Verification Portal
+     */
+    function setupPublicVerification() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const certIdParam = urlParams.get("certId");
+      const form = document.getElementById("publicVerifyForm");
+      const input = document.getElementById("publicCertInput");
+
+      if (!form || !input) return;
+
+      if (certIdParam) {
+        input.value = certIdParam;
+        const verifySection = document.getElementById("verify");
+        if (verifySection) {
+          setTimeout(() => {
+            verifySection.scrollIntoView({ behavior: "smooth" });
+          }, 200);
+        }
+        executePublicVerify(certIdParam);
+      }
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const code = input.value.trim();
+        if (code) {
+          executePublicVerify(code);
+        }
+      });
+    }
+
+    async function executePublicVerify(certificateId) {
+      const btn = document.getElementById("publicVerifyBtn");
+      const resultContainer = document.getElementById("verifyResultContainer");
+      const statusPanel = document.getElementById("verifyStatusPanel");
+      const statusTitle = document.getElementById("verifyStatusTitle");
+      const statusDesc = document.getElementById("verifyStatusDesc");
+      const metaBox = document.getElementById("verifyMetadataBox");
+
+      resultContainer.style.display = "block";
+      statusPanel.className = "status-panel pending";
+      statusTitle.textContent = "Verifying Credential...";
+      statusDesc.textContent = "Querying digital ledger for credential authenticity...";
+      metaBox.style.display = "none";
+      if (btn) btn.disabled = true;
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/verify/${encodeURIComponent(certificateId)}`);
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          const cert = result.data;
+          metaBox.style.display = "block";
+
+          document.getElementById("vRecipientName").textContent = cert.studentName;
+          document.getElementById("vDomain").textContent = cert.domain;
+          document.getElementById("vDuration").textContent = cert.duration;
+          document.getElementById("vInternId").textContent = cert.internId;
+          document.getElementById("vCertId").textContent = cert.certificateId;
+          document.getElementById("vPerformance").textContent = cert.performanceRemark || "Exemplary Completion";
+
+          if (cert.verificationStatus === "Verified") {
+            statusPanel.className = "status-panel verified";
+            statusTitle.textContent = "OFFICIALLY VERIFIED CREDENTIAL";
+            statusDesc.textContent = "This official Stypendless Completion Certificate is authentic, valid, and fully verified by our academic operations board.";
+          } else {
+            statusPanel.className = "status-panel pending";
+            statusTitle.textContent = "ISSUED — LINKEDIN REVIEW PENDING";
+            statusDesc.textContent = "This certificate has been legitimately issued. Final public verification activation is currently in progress pending administrative review of the recipient's LinkedIn completion post.";
+          }
+        } else {
+          statusPanel.className = "status-panel invalid";
+          statusTitle.textContent = "UNVERIFIED OR INVALID CREDENTIAL";
+          statusDesc.textContent = result.error || "The entered Certificate ID does not correspond to any valid Stypendless credential record.";
+          metaBox.style.display = "none";
+        }
+      } catch (err) {
+        statusPanel.className = "status-panel invalid";
+        statusTitle.textContent = "CONNECTION ERROR";
+        statusDesc.textContent = "Unable to connect to verification server. Please verify that the backend API is reachable.";
+        metaBox.style.display = "none";
+      } finally {
+        if (btn) btn.disabled = false;
+      }
     }
   </script>
 </body>
