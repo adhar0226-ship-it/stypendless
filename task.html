@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Student Workspace — Stypendless</title>
-  <meta name="description" content="Stypendless Student Login & Internship Workspace. Access assigned weekly tasks, submit GitHub repository URLs, track milestones, and view completion status.">
+  <meta name="description" content="Stypendless Student Login & Internship Workspace. Access assigned weekly tasks, submit repository URLs, download official offer letters, and request verified completion certificates.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
   <style>
     /* ==========================================================================
@@ -113,7 +113,7 @@
       border-color: var(--primary);
     }
 
-    .btn-primary:hover {
+    .btn-primary:hover:not(:disabled) {
       background-color: var(--primary-hover);
       box-shadow: var(--shadow-sm);
     }
@@ -124,7 +124,7 @@
       border-color: var(--accent-blue);
     }
 
-    .btn-accent:hover {
+    .btn-accent:hover:not(:disabled) {
       background-color: var(--accent-blue-hover);
       box-shadow: var(--shadow-md);
     }
@@ -135,7 +135,7 @@
       border-color: var(--border-color);
     }
 
-    .btn-outline:hover {
+    .btn-outline:hover:not(:disabled) {
       background-color: var(--bg-tertiary);
       border-color: var(--text-primary);
     }
@@ -150,8 +150,9 @@
     }
 
     .btn:disabled {
-      opacity: 0.6;
+      opacity: 0.55;
       cursor: not-allowed;
+      filter: grayscale(20%);
     }
 
     /* Header */
@@ -248,7 +249,7 @@
       color: var(--text-muted);
     }
 
-    /* Badges & Pills */
+    /* Badges & Status */
     .status-badge {
       display: inline-flex;
       align-items: center;
@@ -261,38 +262,14 @@
       letter-spacing: 0.04em;
     }
 
-    .status-pending {
-      background-color: var(--bg-tertiary);
-      color: var(--text-secondary);
-      border: 1px solid var(--border-color);
-    }
-
-    .status-submitted {
-      background-color: var(--accent-blue-light);
-      color: var(--accent-blue);
-      border: 1px solid #BFDBFE;
-    }
-
-    .status-review {
-      background-color: var(--warning-light);
-      color: var(--warning);
-      border: 1px solid #FDE68A;
-    }
-
-    .status-approved {
-      background-color: var(--success-light);
-      color: var(--success);
-      border: 1px solid #A7F3D0;
-    }
-
-    .status-revision {
-      background-color: var(--error-light);
-      color: var(--error);
-      border: 1px solid #FECACA;
-    }
+    .status-pending { background-color: var(--bg-tertiary); color: var(--text-secondary); border: 1px solid var(--border-color); }
+    .status-submitted { background-color: var(--accent-blue-light); color: var(--accent-blue); border: 1px solid #BFDBFE; }
+    .status-review { background-color: var(--warning-light); color: var(--warning); border: 1px solid #FDE68A; }
+    .status-approved { background-color: var(--success-light); color: var(--success); border: 1px solid #A7F3D0; }
+    .status-revision { background-color: var(--error-light); color: var(--error); border: 1px solid #FECACA; }
 
     /* ==========================================================================
-       LOGIN VIEW (SHOWN WHEN UNAUTHENTICATED)
+       LOGIN VIEW
        ========================================================================== */
     .login-wrapper {
       flex-grow: 1;
@@ -367,21 +344,9 @@
       background-color: var(--error-light);
     }
 
-    .field-hint {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
-
-    .field-error {
-      font-size: 0.75rem;
-      color: var(--error);
-      font-weight: 500;
-      display: none;
-    }
-
-    .field-error.visible {
-      display: block;
-    }
+    .field-hint { font-size: 0.75rem; color: var(--text-muted); }
+    .field-error { font-size: 0.75rem; color: var(--error); font-weight: 500; display: none; }
+    .field-error.visible { display: block; }
 
     .forgot-link {
       font-size: 0.8rem;
@@ -416,7 +381,7 @@
     }
 
     /* ==========================================================================
-       DASHBOARD VIEW (SHOWN AFTER AUTHENTICATION)
+       DASHBOARD LOADING, ERROR & EMPTY STATES
        ========================================================================== */
     .dashboard-view {
       display: none;
@@ -424,11 +389,46 @@
       padding: 2.5rem 0 5rem 0;
     }
 
-    .dashboard-view.active {
-      display: block;
+    .dashboard-view.active { display: block; }
+
+    .workspace-loading-box {
+      background-color: #FFFFFF;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 4rem 2rem;
+      text-align: center;
+      max-width: 600px;
+      margin: 2rem auto;
+      box-shadow: var(--shadow-sm);
     }
 
-    /* Workspace Switcher / Bar */
+    .spinner-large {
+      width: 44px;
+      height: 44px;
+      border: 3px solid var(--border-color);
+      border-top-color: var(--accent-blue);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 1.5rem auto;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .cold-start-tip {
+      font-size: 0.825rem;
+      color: var(--text-muted);
+      margin-top: 1rem;
+      background: var(--bg-secondary);
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius-sm);
+      display: inline-block;
+    }
+
+    /* ==========================================================================
+       DASHBOARD CONTENT
+       ========================================================================== */
     .workspace-banner {
       background-color: #FFFFFF;
       border: 1px solid var(--border-color);
@@ -463,19 +463,9 @@
       font-size: 0.85rem;
     }
 
-    .meta-item-label {
-      color: var(--text-muted);
-      font-weight: 500;
-      margin-bottom: 0.2rem;
-    }
+    .meta-item-label { color: var(--text-muted); font-weight: 500; margin-bottom: 0.2rem; }
+    .meta-item-val { font-weight: 700; color: var(--text-primary); font-family: var(--font-mono); }
 
-    .meta-item-val {
-      font-weight: 700;
-      color: var(--text-primary);
-      font-family: var(--font-mono);
-    }
-
-    /* Multiple Workspace Selector Tabs */
     .workspace-tabs {
       display: flex;
       gap: 0.65rem;
@@ -503,7 +493,6 @@
       border-color: var(--primary);
     }
 
-    /* Progress & Summary Cards */
     .summary-grid {
       display: grid;
       grid-template-columns: repeat(6, 1fr);
@@ -536,7 +525,6 @@
       color: var(--text-muted);
     }
 
-    /* Progress Bar */
     .progress-bar-wrap {
       background-color: #FFFFFF;
       border: 1px solid var(--border-color);
@@ -570,7 +558,66 @@
       transition: width var(--transition-normal);
     }
 
-    /* Main Dashboard Grid: Left Tasks, Right Submission & Certificate */
+    /* DOCUMENTS & CERTIFICATES DEDICATED SECTION */
+    .docs-section {
+      margin-bottom: 2.5rem;
+    }
+
+    .docs-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .doc-card {
+      background-color: #FFFFFF;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .doc-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .doc-card-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .doc-details-list {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      flex-grow: 1;
+    }
+
+    .doc-detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.35rem 0;
+      border-bottom: 1px dashed var(--border-subtle);
+    }
+
+    .doc-detail-row span:last-child {
+      font-weight: 700;
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+    }
+
+    /* Main Dashboard Layout */
     .dashboard-layout {
       display: grid;
       grid-template-columns: 1.8fr 1.2fr;
@@ -578,7 +625,6 @@
       align-items: start;
     }
 
-    /* Tasks Section */
     .section-card {
       background-color: #FFFFFF;
       border: 1px solid var(--border-color);
@@ -597,17 +643,9 @@
       border-bottom: 1px solid var(--border-color);
     }
 
-    .section-heading {
-      font-size: 1.25rem;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-    }
+    .section-heading { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.02em; }
 
-    .task-list {
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
-    }
+    .task-list { display: flex; flex-direction: column; gap: 1.25rem; }
 
     .task-card {
       border: 1px solid var(--border-color);
@@ -617,15 +655,8 @@
       transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
     }
 
-    .task-card:hover {
-      border-color: #CBD5E1;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .task-card.is-capstone {
-      border-left: 4px solid var(--primary);
-      background-color: #FAFAFA;
-    }
+    .task-card:hover { border-color: #CBD5E1; box-shadow: var(--shadow-sm); }
+    .task-card.is-capstone { border-left: 4px solid var(--primary); background-color: #FAFAFA; }
 
     .task-top {
       display: flex;
@@ -635,12 +666,7 @@
       margin-bottom: 0.65rem;
     }
 
-    .task-badge-row {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 0.4rem;
-    }
+    .task-badge-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem; }
 
     .week-pill {
       font-size: 0.75rem;
@@ -661,19 +687,8 @@
       border-radius: 4px;
     }
 
-    .task-title {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: var(--text-primary);
-      line-height: 1.35;
-    }
-
-    .task-desc {
-      font-size: 0.875rem;
-      color: var(--text-secondary);
-      line-height: 1.55;
-      margin-bottom: 1rem;
-    }
+    .task-title { font-size: 1.05rem; font-weight: 700; color: var(--text-primary); line-height: 1.35; }
+    .task-desc { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.55; margin-bottom: 1rem; }
 
     .task-meta-row {
       display: flex;
@@ -707,10 +722,7 @@
     }
 
     /* Submit Task Sidebar Card */
-    .submit-panel {
-      position: sticky;
-      top: 5.5rem;
-    }
+    .submit-panel { position: sticky; top: 5.5rem; }
 
     .alert-panel {
       padding: 0.75rem 1rem;
@@ -720,153 +732,53 @@
       display: none;
     }
 
-    .alert-panel.success {
-      display: flex;
-      background-color: var(--success-light);
-      border: 1px solid #A7F3D0;
-      color: var(--success);
-    }
-
-    .alert-panel.error {
-      display: flex;
-      background-color: var(--error-light);
-      border: 1px solid #FECACA;
-      color: var(--error);
-    }
-
-    /* Certificate Section */
-    .certificate-card {
-      background-color: #FFFFFF;
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      padding: 1.75rem;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .cert-pricing-box {
-      background-color: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-sm);
-      padding: 1.25rem;
-      margin: 1.25rem 0;
-    }
-
-    .price-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0.4rem 0;
-      font-size: 0.85rem;
-    }
-
-    .price-total {
-      border-top: 1px solid var(--border-color);
-      padding-top: 0.65rem;
-      margin-top: 0.4rem;
-      font-weight: 800;
-      font-size: 1rem;
-      color: var(--text-primary);
-    }
+    .alert-panel.success { display: flex; background-color: var(--success-light); border: 1px solid #A7F3D0; color: var(--success); }
+    .alert-panel.error { display: flex; background-color: var(--error-light); border: 1px solid #FECACA; color: var(--error); }
 
     /* Modals */
     .modal-overlay {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
+      top: 0; left: 0; width: 100vw; height: 100vh;
       background-color: rgba(15, 23, 42, 0.6);
       backdrop-filter: blur(4px);
       z-index: 2000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: flex; align-items: center; justify-content: center;
       padding: 1.5rem;
-      opacity: 0;
-      visibility: hidden;
+      opacity: 0; visibility: hidden;
       transition: opacity var(--transition-normal), visibility var(--transition-normal);
     }
 
-    .modal-overlay.active {
-      opacity: 1;
-      visibility: visible;
-    }
+    .modal-overlay.active { opacity: 1; visibility: visible; }
 
     .modal-container {
       background-color: #FFFFFF;
       border-radius: var(--radius-lg);
       border: 1px solid var(--border-color);
       box-shadow: var(--shadow-lg);
-      width: 100%;
-      max-width: 540px;
-      max-height: 90vh;
+      width: 100%; max-width: 540px; max-height: 90vh;
       overflow-y: auto;
       transform: translateY(12px);
       transition: transform var(--transition-normal);
     }
 
-    .modal-overlay.active .modal-container {
-      transform: translateY(0);
-    }
+    .modal-overlay.active .modal-container { transform: translateY(0); }
+    .modal-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
+    .modal-body { padding: 1.5rem; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; }
+    .modal-footer { padding: 1.25rem 1.5rem; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 0.75rem; background-color: var(--bg-secondary); }
 
-    .modal-header {
-      padding: 1.25rem 1.5rem;
-      border-bottom: 1px solid var(--border-color);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .modal-body {
-      padding: 1.5rem;
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-      line-height: 1.6;
-    }
-
-    .modal-footer {
-      padding: 1.25rem 1.5rem;
-      border-top: 1px solid var(--border-color);
-      display: flex;
-      justify-content: flex-end;
-      gap: 0.75rem;
-      background-color: var(--bg-secondary);
-    }
-
-    /* Responsive */
     @media (max-width: 992px) {
-      .summary-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
-      .dashboard-layout {
-        grid-template-columns: 1fr;
-      }
-      .submit-panel {
-        position: static;
-      }
-      .workspace-meta-grid {
-        grid-template-columns: 1fr 1fr;
-      }
+      .summary-grid { grid-template-columns: repeat(3, 1fr); }
+      .docs-grid { grid-template-columns: 1fr; }
+      .dashboard-layout { grid-template-columns: 1fr; }
+      .submit-panel { position: static; }
+      .workspace-meta-grid { grid-template-columns: 1fr 1fr; }
     }
 
     @media (max-width: 640px) {
-      .summary-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-      .workspace-meta-grid {
-        grid-template-columns: 1fr;
-      }
-      .portal-nav {
-        height: auto;
-        padding: 1rem 0;
-        flex-direction: column;
-        gap: 0.75rem;
-        align-items: flex-start;
-      }
-      .header-user-bar {
-        width: 100%;
-        justify-content: space-between;
-      }
+      .summary-grid { grid-template-columns: 1fr 1fr; }
+      .workspace-meta-grid { grid-template-columns: 1fr; }
+      .portal-nav { height: auto; padding: 1rem 0; flex-direction: column; gap: 0.75rem; align-items: flex-start; }
+      .header-user-bar { width: 100%; justify-content: space-between; }
     }
   </style>
 </head>
@@ -878,7 +790,7 @@
   <header class="portal-header">
     <div class="container portal-nav">
       <div class="brand-wrap">
-        <a href="index.html" class="brand-logo" title="Return to Public Website">
+        <a href="main.html" class="brand-logo" title="Return to Public Website">
           <div class="brand-icon">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="16 18 22 12 16 6"></polyline>
@@ -913,22 +825,18 @@
     <div class="login-card">
       <div class="login-header">
         <h1 class="login-title">Student Login</h1>
-        <p class="login-subtitle">
-          Access your personalized virtual internship workspace
-        </p>
+        <p class="login-subtitle">Access your personalized virtual internship workspace</p>
       </div>
 
       <div class="login-alert" id="loginAlert"></div>
 
       <form id="loginForm" novalidate>
-        <!-- Email Address -->
         <div class="form-group">
           <label class="form-label" for="loginEmail">Email Address</label>
           <input type="email" id="loginEmail" class="form-input" placeholder="name@college.edu" required autocomplete="email">
           <span class="field-error" id="loginEmailError">Please enter a valid email address.</span>
         </div>
 
-        <!-- Phone Number -->
         <div class="form-group">
           <label class="form-label" for="loginPhone">Registered Mobile Number</label>
           <input type="tel" id="loginPhone" class="form-input" placeholder="e.g. 9876543210" required autocomplete="tel">
@@ -936,7 +844,6 @@
           <span class="field-error" id="loginPhoneError">Please enter a valid 10-digit mobile number.</span>
         </div>
 
-        <!-- Password -->
         <div class="form-group">
           <label class="form-label" for="loginPassword">
             <span>Password</span>
@@ -958,12 +865,11 @@
 
       <div style="text-align: center; margin-top: 1.5rem; font-size: 0.85rem; color: var(--text-muted);">
         Don't have an internship account? 
-        <a href="index.html#register" style="color: var(--accent-blue); font-weight: 600; text-decoration: underline;">
+        <a href="main.html#register" style="color: var(--accent-blue); font-weight: 600; text-decoration: underline;">
           Enroll for free
         </a>
       </div>
 
-      <!-- Quick Demo Credentials for Fast Evaluation -->
       <div class="demo-login-box">
         <strong>Quick Demo Account:</strong>
         <div style="margin-top: 0.25rem;">
@@ -982,221 +888,300 @@
   <main class="dashboard-view" id="dashboardView">
     <div class="container">
       
-      <!-- Multiple Workspace Selector Tabs -->
-      <div id="workspaceTabsWrap" style="display: none;">
-        <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: 0.04em;">
-          Your Enrolled Workspaces:
-        </div>
-        <div class="workspace-tabs" id="workspaceTabsList"></div>
-      </div>
-
-      <!-- Active Workspace Banner -->
-      <div class="workspace-banner" id="workspaceBanner">
-        <div class="banner-top">
-          <div>
-            <div class="status-badge status-approved" id="workspaceStatusBadge" style="margin-bottom: 0.5rem;">
-              Active Workspace
-            </div>
-            <h1 class="active-domain-title" id="activeDomainName">Loading Workspace...</h1>
-          </div>
-          <div style="display: flex; gap: 0.65rem;">
-            <a href="index.html#domains" class="btn btn-outline btn-sm" title="Enroll in another domain">
-              + Enroll New Domain
-            </a>
-          </div>
-        </div>
-
-        <div class="workspace-meta-grid">
-          <div>
-            <div class="meta-item-label">Intern ID</div>
-            <div class="meta-item-val" id="metaInternId" style="color: var(--accent-blue);">—</div>
-          </div>
-          <div>
-            <div class="meta-item-label">Intern Name</div>
-            <div class="meta-item-val" id="metaStudentName">—</div>
-          </div>
-          <div>
-            <div class="meta-item-label">Start Date</div>
-            <div class="meta-item-val" id="metaStartDate">—</div>
-          </div>
-          <div>
-            <div class="meta-item-label">Expected Completion</div>
-            <div class="meta-item-val" id="metaEndDate">—</div>
-          </div>
+      <!-- LOADING STATE CONTAINER (Robust fix for "Loading Workspace" problem) -->
+      <div id="workspaceLoadingContainer" class="workspace-loading-box">
+        <div class="spinner-large"></div>
+        <h2 style="font-size: 1.35rem; font-weight: 800; margin-bottom: 0.35rem;">Loading your workspace...</h2>
+        <p style="color: var(--text-secondary); font-size: 0.9rem;">Please wait while we retrieve your internship details and assigned tasks.</p>
+        <div class="cold-start-tip" id="coldStartTip" style="display: none;">
+          Connecting to secure API service (first request may take a few seconds on free cloud tier)...
         </div>
       </div>
 
-      <!-- B. Task Summary Section -->
-      <div class="summary-grid">
-        <div class="summary-card">
-          <div class="summary-num" id="sumTotal">0</div>
-          <div class="summary-label">Total Tasks</div>
+      <!-- ERROR STATE CONTAINER -->
+      <div id="workspaceErrorContainer" class="workspace-loading-box" style="display: none;">
+        <div style="width: 48px; height: 48px; border-radius: 50%; background-color: var(--error-light); color: var(--error); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem auto;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
         </div>
-        <div class="summary-card">
-          <div class="summary-num" id="sumSubmitted" style="color: var(--accent-blue);">0</div>
-          <div class="summary-label">Submitted</div>
-        </div>
-        <div class="summary-card">
-          <div class="summary-num" id="sumApproved" style="color: var(--success);">0</div>
-          <div class="summary-label">Approved</div>
-        </div>
-        <div class="summary-card">
-          <div class="summary-num" id="sumPending" style="color: var(--warning);">0</div>
-          <div class="summary-label">Pending</div>
-        </div>
-        <div class="summary-card">
-          <div class="summary-num" id="sumRemaining">0</div>
-          <div class="summary-label">Remaining</div>
-        </div>
-        <div class="summary-card">
-          <div class="summary-num" id="sumProgressPercent" style="color: var(--primary);">0%</div>
-          <div class="summary-label">Progress</div>
-        </div>
+        <h2 style="font-size: 1.35rem; font-weight: 800; margin-bottom: 0.35rem;">We couldn't load your workspace right now.</h2>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem;" id="workspaceErrorMessage">
+          Please check your connection or ensure the backend server is running.
+        </p>
+        <button type="button" class="btn btn-primary" id="retryLoadBtn">Retry Connection</button>
       </div>
 
-      <!-- Progress Track -->
-      <div class="progress-bar-wrap">
-        <div class="progress-header">
-          <span>Overall Workspace Milestone Completion</span>
-          <span id="nextDeadlineText" style="color: var(--text-muted); font-size: 0.8rem; font-family: var(--font-mono);">
-            Next Deadline: Loading...
-          </span>
-        </div>
-        <div class="progress-track">
-          <div class="progress-fill" id="progressFill"></div>
-        </div>
+      <!-- NO ENROLLMENT STATE CONTAINER -->
+      <div id="workspaceEmptyContainer" class="workspace-loading-box" style="display: none;">
+        <h2 style="font-size: 1.35rem; font-weight: 800; margin-bottom: 0.35rem;">You don't have an active internship workspace yet.</h2>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem;">
+          Select a domain from our catalogue to register for your free virtual internship and access structured tasks.
+        </p>
+        <a href="main.html#domains" class="btn btn-primary">+ Explore & Enroll in an Internship</a>
       </div>
 
-      <!-- Dashboard Layout: Left (My Tasks), Right (Submit & Certificate) -->
-      <div class="dashboard-layout">
-        
-        <!-- C. My Tasks (Structured Weekly Interface) -->
-        <section class="section-card">
-          <div class="section-header">
+      <!-- MAIN WORKSPACE CONTENT (Revealed when data loads successfully) -->
+      <div id="workspaceContent" style="display: none;">
+
+        <!-- Multiple Workspace Selector Tabs -->
+        <div id="workspaceTabsWrap" style="display: none;">
+          <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: 0.04em;">
+            Your Enrolled Workspaces:
+          </div>
+          <div class="workspace-tabs" id="workspaceTabsList"></div>
+        </div>
+
+        <!-- Active Workspace Banner -->
+        <div class="workspace-banner" id="workspaceBanner">
+          <div class="banner-top">
             <div>
-              <h2 class="section-heading">My Assigned Tasks</h2>
-              <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.2rem;">
-                Autonomous self-paced assignments. You may submit tasks ahead of schedule.
-              </p>
+              <div class="status-badge status-approved" id="workspaceStatusBadge" style="margin-bottom: 0.5rem;">
+                Active Workspace
+              </div>
+              <h1 class="active-domain-title" id="activeDomainName">—</h1>
             </div>
-            <button type="button" class="btn btn-outline btn-sm" id="refreshTasksBtn" title="Reload tasks">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-              Refresh
-            </button>
+            <div style="display: flex; gap: 0.65rem;">
+              <a href="main.html#domains" class="btn btn-outline btn-sm" title="Enroll in another domain">
+                + Enroll New Domain
+              </a>
+            </div>
           </div>
 
-          <div class="task-list" id="taskListContainer">
-            <!-- Populated via JavaScript -->
+          <div class="workspace-meta-grid">
+            <div>
+              <div class="meta-item-label">Intern ID</div>
+              <div class="meta-item-val" id="metaInternId" style="color: var(--accent-blue);">—</div>
+            </div>
+            <div>
+              <div class="meta-item-label">Intern Name</div>
+              <div class="meta-item-val" id="metaStudentName">—</div>
+            </div>
+            <div>
+              <div class="meta-item-label">Start Date</div>
+              <div class="meta-item-val" id="metaStartDate">—</div>
+            </div>
+            <div>
+              <div class="meta-item-label">Expected Completion</div>
+              <div class="meta-item-val" id="metaEndDate">—</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Task Summary Section -->
+        <div class="summary-grid">
+          <div class="summary-card">
+            <div class="summary-num" id="sumTotal">0</div>
+            <div class="summary-label">Assigned Tasks</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-num" id="sumSubmitted" style="color: var(--accent-blue);">0</div>
+            <div class="summary-label">Submitted</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-num" id="sumApproved" style="color: var(--success);">0</div>
+            <div class="summary-label">Approved</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-num" id="sumPending" style="color: var(--warning);">0</div>
+            <div class="summary-label">Pending</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-num" id="sumRemaining">0</div>
+            <div class="summary-label">Remaining</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-num" id="sumProgressPercent" style="color: var(--primary);">0%</div>
+            <div class="summary-label">Progress</div>
+          </div>
+        </div>
+
+        <!-- Progress Track -->
+        <div class="progress-bar-wrap">
+          <div class="progress-header">
+            <span>Overall Milestone Completion (Duration Target)</span>
+            <span id="nextDeadlineText" style="color: var(--text-muted); font-size: 0.8rem; font-family: var(--font-mono);">
+              Next Deadline: Loading...
+            </span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+        </div>
+
+        <!-- DEDICATED DOCUMENTS & CERTIFICATES SECTION -->
+        <section class="docs-section">
+          <h2 class="section-heading" style="margin-bottom: 1.25rem;">Documents & Official Credentials</h2>
+          <div class="docs-grid">
+
+            <!-- Card 1: Official Offer Letter -->
+            <div class="doc-card">
+              <div class="doc-card-header">
+                <div>
+                  <h3 class="doc-card-title">Official Offer Letter</h3>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">Appointment and engagement record</div>
+                </div>
+                <span class="status-badge status-approved">Available</span>
+              </div>
+
+              <div class="doc-details-list">
+                <div class="doc-detail-row">
+                  <span>Recipient:</span>
+                  <span id="docOfferRecipient">—</span>
+                </div>
+                <div class="doc-detail-row">
+                  <span>Intern ID:</span>
+                  <span id="docOfferInternId">—</span>
+                </div>
+                <div class="doc-detail-row">
+                  <span>Domain & Duration:</span>
+                  <span id="docOfferDomain">—</span>
+                </div>
+                <div class="doc-detail-row">
+                  <span>Format:</span>
+                  <span>Official PDF (A4)</span>
+                </div>
+              </div>
+
+              <button type="button" class="btn btn-outline btn-block" id="downloadOfferBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                <span id="downloadOfferBtnText">Download Offer Letter (PDF)</span>
+              </button>
+            </div>
+
+            <!-- Card 2: Completion Certificate -->
+            <div class="doc-card">
+              <div class="doc-card-header">
+                <div>
+                  <h3 class="doc-card-title">Completion Certificate</h3>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">Two-page credential with QR verification</div>
+                </div>
+                <span class="status-badge status-pending" id="certStatusBadge">Not Eligible</span>
+              </div>
+
+              <div class="doc-details-list">
+                <div class="doc-detail-row">
+                  <span>Requirements Met:</span>
+                  <span id="certReqApproved">0 / 0 Tasks Approved</span>
+                </div>
+                <div class="doc-detail-row">
+                  <span>Optional Fee:</span>
+                  <span id="certPriceTag">₹499</span>
+                </div>
+                <div class="doc-detail-row">
+                  <span>Verification Status:</span>
+                  <span id="certVerificationStatus" style="font-family: inherit; font-size: 0.8rem;">Not Applicable</span>
+                </div>
+                <div class="doc-detail-row" id="certIdRow" style="display: none;">
+                  <span>Certificate ID:</span>
+                  <span id="certIdVal" style="color: var(--accent-blue);">—</span>
+                </div>
+              </div>
+
+              <!-- Certificate State Actions -->
+              <div id="certActionsWrapper">
+                <!-- Action: Request Certificate Button (when eligible) -->
+                <button type="button" class="btn btn-primary btn-block" id="requestCertBtn" style="display: none; margin-bottom: 0.65rem;">
+                  Request Optional Completion Certificate
+                </button>
+
+                <!-- Action: LinkedIn Post Submission (when issued but pending verification) -->
+                <div id="linkedinSubmitBox" style="display: none; background: var(--bg-tertiary); padding: 0.85rem; border-radius: var(--radius-sm); margin-bottom: 0.75rem;">
+                  <label style="font-size: 0.75rem; font-weight: 700; display: block; margin-bottom: 0.25rem;">
+                    Submit LinkedIn Certificate Post URL to Activate QR:
+                  </label>
+                  <div style="display: flex; gap: 0.4rem;">
+                    <input type="url" id="linkedinPostInput" class="form-input" style="padding: 0.45rem 0.65rem; font-size: 0.8rem;" placeholder="https://linkedin.com/posts/...">
+                    <button type="button" class="btn btn-accent btn-sm" id="submitLinkedinBtn">Submit</button>
+                  </div>
+                </div>
+
+                <!-- Action: Download Certificate PDF (Enabled only after issuance & payment) -->
+                <button type="button" class="btn btn-accent btn-block" id="downloadCertBtn" disabled>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                  <span id="downloadCertBtnText">Download Completion Certificate (PDF)</span>
+                </button>
+                <div id="certDownloadNote" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem; text-align: center;">
+                  Download is enabled after all tasks are approved, payment verified, and administrator issues credential.
+                </div>
+              </div>
+
+            </div>
+
           </div>
         </section>
 
-        <!-- Sidebar: D. Submit Task & E. Certificate Section -->
-        <div class="submit-panel">
+        <!-- Tasks and Submit Layout -->
+        <div class="dashboard-layout">
           
-          <!-- D. Submit Task Panel -->
+          <!-- Assigned Tasks List -->
           <section class="section-card">
-            <h3 class="section-heading" style="font-size: 1.15rem; margin-bottom: 0.4rem;">
-              Submit Assignment
-            </h3>
-            <p style="font-size: 0.825rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
-              Only public GitHub repository URLs are accepted.
-            </p>
-
-            <div class="alert-panel" id="submitAlert"></div>
-
-            <form id="submitTaskForm" novalidate>
-              <div class="form-group">
-                <label class="form-label" for="submitTaskSelect">Select Task to Submit</label>
-                <select id="submitTaskSelect" class="form-select" required>
-                  <option value="" disabled selected>Select an assigned task</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label" for="submitGithubUrl">GitHub Repository URL</label>
-                <input type="url" id="submitGithubUrl" class="form-input" placeholder="https://github.com/username/repository" required>
-                <span class="field-hint">e.g. https://github.com/rahul/stypendless-ai-pipeline</span>
-                <span class="field-error" id="submitGithubError">Please enter a valid GitHub repository URL.</span>
-              </div>
-
-              <button type="submit" class="btn btn-primary btn-block" id="submitTaskBtn">
-                <span id="submitBtnText">Submit Repository URL</span>
-                <span id="submitSpinner" style="display: none;">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation: spin 0.8s linear infinite;">
-                    <circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-linecap="round"></circle>
-                  </svg>
-                </span>
-              </button>
-            </form>
-          </section>
-
-          <!-- E. Certificate Section -->
-          <section class="certificate-card" id="certificateSection">
-            <h3 class="section-heading" style="font-size: 1.15rem; margin-bottom: 0.4rem;">
-              Completion Certificate
-            </h3>
-            <p style="font-size: 0.825rem; color: var(--text-secondary);">
-              Optional official verification credential with public QR code.
-            </p>
-
-            <!-- State: Incomplete -->
-            <div id="certIncompleteBox" style="margin-top: 1rem; padding: 1rem; background-color: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-size: 0.85rem; color: var(--text-secondary);">
-              <div style="font-weight: 700; color: var(--text-primary); margin-bottom: 0.25rem;">
-                Status: In Progress
-              </div>
+            <div class="section-header">
               <div>
-                Complete and receive approvals on all required milestone tasks to unlock the optional certificate request.
+                <h2 class="section-heading">Assigned Milestones</h2>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.2rem;">
+                  Filtered strictly by your registered duration. Complete tasks at your own pace.
+                </p>
               </div>
+              <button type="button" class="btn btn-outline btn-sm" id="refreshTasksBtn" title="Reload tasks">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                Refresh
+              </button>
             </div>
 
-            <!-- State: Completed & Eligible -->
-            <div id="certCompletedBox" style="display: none; margin-top: 1rem;">
-              <div style="background-color: var(--success-light); border: 1px solid #A7F3D0; padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 1rem;">
-                <strong style="color: var(--success); display: block; font-size: 0.95rem;">
-                  Congratulations! You have successfully completed your internship.
-                </strong>
-                <span style="font-size: 0.825rem; color: var(--text-secondary);">
-                  All required milestone assignments and your capstone project have been approved.
-                </span>
-              </div>
+            <div class="task-list" id="taskListContainer">
+              <!-- Dynamically populated from backend -->
+            </div>
+          </section>
 
-              <div class="cert-pricing-box">
-                <div style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--text-muted); margin-bottom: 0.5rem; letter-spacing: 0.04em;">
-                  Optional Certificate Pricing Breakdown
-                </div>
-                <div class="price-row">
-                  <span>Base Certificate Fee (<span id="certDurationLabel">1 month</span>):</span>
-                  <span class="detail-val" id="certBasePrice">₹499</span>
-                </div>
-                <div class="price-row" id="earlySurchargeRow">
-                  <span>Early Completion Administrative Fee:</span>
-                  <span class="detail-val" id="certSurcharge">₹75</span>
-                </div>
-                <div class="price-row price-total">
-                  <span>Total Amount:</span>
-                  <span id="certTotalPrice" style="color: var(--accent-blue);">₹574</span>
-                </div>
-              </div>
-
-              <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.4;">
-                Certificates are voluntary. Stypendless manually issues and verifies two-page credentials with permanent QR verification following administrative code review.
+          <!-- Submit Assignment Sidebar -->
+          <div class="submit-panel">
+            <section class="section-card">
+              <h3 class="section-heading" style="font-size: 1.15rem; margin-bottom: 0.4rem;">
+                Submit Milestone
+              </h3>
+              <p style="font-size: 0.825rem; color: var(--text-secondary); margin-bottom: 1.25rem;" id="submitInstructionNote">
+                Submit your public repository or milestone proof.
               </p>
 
-              <button type="button" class="btn btn-primary btn-block" id="requestCertificateBtn">
-                Request Official Completion Certificate
-              </button>
-            </div>
-          </section>
+              <div class="alert-panel" id="submitAlert"></div>
+
+              <form id="submitTaskForm" novalidate>
+                <div class="form-group">
+                  <label class="form-label" for="submitTaskSelect">Select Task to Submit</label>
+                  <select id="submitTaskSelect" class="form-select" required>
+                    <option value="" disabled selected>Select an assigned task</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="submitUrlInput" id="submitUrlLabel">GitHub Repository URL</label>
+                  <input type="url" id="submitUrlInput" class="form-input" placeholder="https://github.com/username/repository" required>
+                  <span class="field-hint" id="submitUrlHint">e.g. https://github.com/rahul/stypendless-project</span>
+                  <span class="field-error" id="submitUrlError">Please enter a valid URL.</span>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block" id="submitTaskBtn">
+                  <span id="submitBtnText">Submit for Review</span>
+                  <span id="submitSpinner" style="display: none;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation: spin 0.8s linear infinite;">
+                      <circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-linecap="round"></circle>
+                    </svg>
+                  </span>
+                </button>
+              </form>
+            </section>
+          </div>
 
         </div>
+
       </div>
 
     </div>
   </main>
 
   <!-- ==========================================================================
-       MODAL: FORGOT PASSWORD INQUIRY
+       MODALS
        ========================================================================== -->
+  <!-- Modal: Password Assistance -->
   <div class="modal-overlay" id="forgotPasswordModal">
     <div class="modal-container">
       <div class="modal-header">
@@ -1213,7 +1198,7 @@
           <strong style="color: var(--accent-blue);">support@stypendless.com</strong>
         </p>
         <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 1rem;">
-          Please provide your registered email address, phone number, and assigned Intern ID in your message for identity verification.
+          Please include your registered email address, mobile number, and assigned Intern ID for verification.
         </p>
       </div>
       <div class="modal-footer">
@@ -1222,18 +1207,16 @@
     </div>
   </div>
 
-  <!-- ==========================================================================
-       MODAL: CERTIFICATE PURCHASE REQUEST CONFIRMATION
-       ========================================================================== -->
+  <!-- Modal: Certificate Purchase Request Confirmation -->
   <div class="modal-overlay" id="certConfirmModal">
     <div class="modal-container">
       <div class="modal-header">
-        <h3 style="font-size: 1.15rem; font-weight: 700;">Certificate Order Inquiry</h3>
+        <h3 style="font-size: 1.15rem; font-weight: 700;">Confirm Certificate Request</h3>
         <button type="button" class="btn btn-outline btn-sm" id="closeCertModalBtn">&times;</button>
       </div>
       <div class="modal-body">
         <p style="margin-bottom: 1rem;">
-          You have requested an official <strong>Stypendless Completion Certificate</strong> for <span id="modalCertDomainName" style="font-weight: 700;">—</span>.
+          You are requesting an official, two-page <strong>Stypendless Completion Certificate</strong> for <strong id="modalCertDomain">—</strong>.
         </p>
         <div style="background-color: var(--bg-secondary); border: 1px solid var(--border-color); padding: 1rem; border-radius: var(--radius-sm); font-size: 0.85rem; margin-bottom: 1rem;">
           <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem;">
@@ -1241,26 +1224,27 @@
             <strong id="modalCertInternId">—</strong>
           </div>
           <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem;">
-            <span>Evaluated Deliverables:</span>
-            <strong style="color: var(--success);">All Tasks Approved</strong>
+            <span>Tasks Evaluated:</span>
+            <strong style="color: var(--success);">All Required Milestones Approved</strong>
           </div>
           <div style="display: flex; justify-content: space-between;">
-            <span>Total Payable Amount:</span>
+            <span>Total Payable:</span>
             <strong id="modalCertPrice" style="color: var(--accent-blue);">—</strong>
           </div>
         </div>
         <p style="font-size: 0.825rem; color: var(--text-muted);">
-          Stypendless strictly avoids automated fake payment gateways. To complete your verified order, your certificate request has been logged. Our administrative team will reach out to your registered email with the official invoice and payment confirmation link.
+          Certificates are manually verified and generated in-memory with unique QR codes upon payment confirmation. An invoice will be sent to your registered email.
         </p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary btn-sm" id="closeCertModalBtn2">Acknowledge</button>
+        <button type="button" class="btn btn-outline btn-sm" id="cancelCertModalBtn">Cancel</button>
+        <button type="button" class="btn btn-primary btn-sm" id="confirmCertRequestBtn">Confirm Request</button>
       </div>
     </div>
   </div>
 
   <!-- ==========================================================================
-       VANILLA JAVASCRIPT LOGIC
+       VANILLA JAVASCRIPT CONTROLLER
        ========================================================================== -->
   <script>
     /**
@@ -1275,34 +1259,26 @@
     let studentWorkspaces = [];
     let currentActiveWorkspace = null;
     let currentTasks = [];
+    let certificateInfo = null;
 
     document.addEventListener("DOMContentLoaded", () => {
-      // 1. Check existing session
       checkSavedSession();
-
-      // 2. Setup Login Form
       setupLoginForm();
-
-      // 3. Setup Forgot Password Handlers
       setupForgotPassword();
-
-      // 4. Setup Task Submission Form
       setupTaskSubmission();
+      setupDocumentsActions();
 
-      // 5. Setup Certificate Request Handler
-      setupCertificateHandler();
-
-      // 6. Setup Logout
       document.getElementById("logoutBtn").addEventListener("click", handleLogout);
       document.getElementById("refreshTasksBtn").addEventListener("click", () => {
-        if (currentActiveWorkspace) {
-          loadWorkspaceData(currentActiveWorkspace.internshipId);
-        }
+        if (currentActiveWorkspace) loadWorkspaceData(currentActiveWorkspace.internshipId);
+      });
+      document.getElementById("retryLoadBtn").addEventListener("click", () => {
+        loadWorkspaces();
       });
     });
 
     /**
-     * Check if student session token exists in localStorage
+     * Session Check
      */
     async function checkSavedSession() {
       const token = localStorage.getItem("stypendless_token");
@@ -1313,9 +1289,7 @@
 
       try {
         const response = await fetch(`${API_BASE_URL}/api/me`, {
-          headers: {
-            "Authorization": `Bearer ${token}`
-          }
+          headers: { "Authorization": `Bearer ${token}` }
         });
 
         if (response.ok) {
@@ -1323,22 +1297,18 @@
           if (res.success && res.data) {
             currentStudent = res.data;
             showDashboardView();
-            loadWorkspaces();
+            await loadWorkspaces();
             return;
           }
         }
-        // Token invalid
         localStorage.removeItem("stypendless_token");
         showLoginView();
       } catch (err) {
-        console.warn("[Workspace] Session validation error:", err.message);
+        console.warn("[Session Exception]:", err.message);
         showLoginView();
       }
     }
 
-    /**
-     * View Switchers
-     */
     function showLoginView() {
       document.getElementById("loginView").style.display = "flex";
       document.getElementById("dashboardView").classList.remove("active");
@@ -1357,7 +1327,7 @@
     }
 
     /**
-     * Setup Login Form
+     * Login Form Handler
      */
     function setupLoginForm() {
       const form = document.getElementById("loginForm");
@@ -1369,7 +1339,6 @@
       const btnText = document.getElementById("loginBtnText");
       const spinner = document.getElementById("loginSpinner");
 
-      // Demo Credentials button
       document.getElementById("fillDemoBtn").addEventListener("click", () => {
         email.value = "rahul.sharma@example.com";
         phone.value = "9876543210";
@@ -1402,7 +1371,6 @@
 
         if (!isValid) return;
 
-        // Loading
         submitBtn.disabled = true;
         btnText.textContent = "Authenticating...";
         spinner.style.display = "inline-flex";
@@ -1431,7 +1399,7 @@
           }
         } catch (err) {
           loginAlert.className = "login-alert visible";
-          loginAlert.textContent = "Unable to connect to backend server. Please verify backend is running on port 5000.";
+          loginAlert.textContent = "Unable to reach server. Please verify backend service on port 5000.";
         } finally {
           submitBtn.disabled = false;
           btnText.textContent = "Sign In to Workspace";
@@ -1441,34 +1409,74 @@
     }
 
     /**
-     * Load All Workspaces for Student
+     * Load Workspaces with complete Loading/Cold-Start and Error handling
      */
     async function loadWorkspaces() {
       const token = localStorage.getItem("stypendless_token");
+      const loadingBox = document.getElementById("workspaceLoadingContainer");
+      const errorBox = document.getElementById("workspaceErrorContainer");
+      const emptyBox = document.getElementById("workspaceEmptyContainer");
+      const contentBox = document.getElementById("workspaceContent");
+      const coldTip = document.getElementById("coldStartTip");
+
+      // Set Loading State
+      loadingBox.style.display = "block";
+      errorBox.style.display = "none";
+      emptyBox.style.display = "none";
+      contentBox.style.display = "none";
+      coldTip.style.display = "none";
+
+      const coldTimer = setTimeout(() => {
+        coldTip.style.display = "inline-block";
+      }, 3500);
+
+      // AbortController with 40s timeout for Render cold starts
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 40000);
+
       try {
         const response = await fetch(`${API_BASE_URL}/api/workspaces`, {
-          headers: { "Authorization": `Bearer ${token}` }
+          headers: { "Authorization": `Bearer ${token}` },
+          signal: controller.signal
         });
+
+        clearTimeout(coldTimer);
+        clearTimeout(timeoutId);
+
+        if (response.status === 401) {
+          localStorage.removeItem("stypendless_token");
+          showLoginView();
+          return;
+        }
 
         if (response.ok) {
           const res = await response.json();
           if (res.success && res.data && res.data.length > 0) {
             studentWorkspaces = res.data;
+            loadingBox.style.display = "none";
+            contentBox.style.display = "block";
             renderWorkspaceTabs();
-            // Select first workspace by default
             selectWorkspace(studentWorkspaces[0]);
           } else {
-            document.getElementById("activeDomainName").textContent = "No active internship found.";
+            loadingBox.style.display = "none";
+            emptyBox.style.display = "block";
           }
+        } else {
+          throw new Error("Server responded with error status " + response.status);
         }
       } catch (err) {
+        clearTimeout(coldTimer);
+        clearTimeout(timeoutId);
         console.error("[Workspaces Load Error]:", err);
+        loadingBox.style.display = "none";
+        errorBox.style.display = "block";
+        document.getElementById("workspaceErrorMessage").textContent = 
+          err.name === 'AbortError' 
+            ? "Connection timed out while waiting for server. Click Retry to connect again."
+            : "Could not reach the internship service. Please check your internet connection or verify the server.";
       }
     }
 
-    /**
-     * Render Tabs if Student has Multiple Workspaces
-     */
     function renderWorkspaceTabs() {
       const tabsWrap = document.getElementById("workspaceTabsWrap");
       const tabsList = document.getElementById("workspaceTabsList");
@@ -1489,14 +1497,10 @@
       }
     }
 
-    /**
-     * Select Active Workspace
-     */
     function selectWorkspace(ws) {
       currentActiveWorkspace = ws;
       renderWorkspaceTabs();
 
-      // Update Banner
       document.getElementById("activeDomainName").textContent = ws.domain;
       document.getElementById("metaInternId").textContent = ws.internId;
       document.getElementById("headerInternId").textContent = ws.internId;
@@ -1507,18 +1511,19 @@
       const badge = document.getElementById("workspaceStatusBadge");
       badge.textContent = `${ws.status.toUpperCase()} • ${ws.duration.toUpperCase()}`;
 
-      // Load tasks, progress, and certificate info
+      // Update Offer Letter Card Details
+      document.getElementById("docOfferRecipient").textContent = currentStudent.fullName;
+      document.getElementById("docOfferInternId").textContent = ws.internId;
+      document.getElementById("docOfferDomain").textContent = `${ws.domain} (${ws.duration})`;
+
       loadWorkspaceData(ws.internshipId);
     }
 
-    /**
-     * Load tasks, progress, and certificate status for selected workspace
-     */
     async function loadWorkspaceData(internshipId) {
       const token = localStorage.getItem("stypendless_token");
 
       try {
-        // 1. Fetch Tasks
+        // 1. Fetch Duration-Filtered Tasks
         const tasksRes = await fetch(`${API_BASE_URL}/api/tasks?internshipId=${internshipId}`, {
           headers: { "Authorization": `Bearer ${token}` }
         });
@@ -1542,31 +1547,29 @@
           }
         }
 
-        // 3. Fetch Certificate Status
+        // 3. Fetch Certificate & Documents Info
         const certRes = await fetch(`${API_BASE_URL}/api/certificates?internshipId=${internshipId}`, {
           headers: { "Authorization": `Bearer ${token}` }
         });
         if (certRes.ok) {
           const res = await certRes.json();
           if (res.success && res.data) {
-            updateCertificateUI(res.data);
+            certificateInfo = res.data;
+            updateCertificateUI(certificateInfo);
           }
         }
 
       } catch (err) {
-        console.error("[Workspace Data Fetch Error]:", err);
+        console.error("[Workspace Data Load Error]:", err);
       }
     }
 
-    /**
-     * Render Tasks
-     */
     function renderTasks(tasks) {
       const container = document.getElementById("taskListContainer");
       container.innerHTML = "";
 
       if (tasks.length === 0) {
-        container.innerHTML = `<div style="text-align: center; padding: 2rem; color: var(--text-muted);">No tasks assigned yet.</div>`;
+        container.innerHTML = `<div style="text-align: center; padding: 2rem; color: var(--text-muted);">No assigned tasks for this duration.</div>`;
         return;
       }
 
@@ -1590,8 +1593,9 @@
               <div class="task-badge-row">
                 <span class="week-pill">Week ${task.week}</span>
                 <span class="task-type-pill">${task.taskType}</span>
+                ${task.submissionType === 'linkedin' ? '<span class="status-badge" style="background:#E0E7FF; color:#3730A3; font-size:0.65rem;">LinkedIn Post</span>' : ''}
               </div>
-              <h3 class="task-title">${task.title}</h3>
+              <h3 class="task-title">Task ${task.taskNum}: ${task.title}</h3>
             </div>
             <span class="status-badge ${statusClass}">${task.status}</span>
           </div>
@@ -1600,9 +1604,9 @@
 
           ${task.submittedUrl ? `
             <div style="font-size: 0.8rem; margin-bottom: 0.75rem;">
-              <span style="color: var(--text-muted);">Submitted Repository:</span>
+              <span style="color: var(--text-muted);">Submitted Deliverable:</span>
               <a href="${task.submittedUrl}" target="_blank" rel="noopener noreferrer" class="submission-link-view">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
                 ${task.submittedUrl}
               </a>
             </div>
@@ -1610,21 +1614,21 @@
 
           ${task.reviewerFeedback ? `
             <div class="feedback-box">
-              <strong>Reviewer Feedback:</strong> ${task.reviewerFeedback}
+              <strong>Evaluation Feedback:</strong> ${task.reviewerFeedback}
             </div>
           ` : ''}
 
           <div class="task-meta-row">
-            <span>Deadline: <strong>${formattedDeadline}</strong></span>
+            <span>Target Deadline: <strong>${formattedDeadline}</strong></span>
             <div>
               ${task.status !== 'Approved' ? `
                 <button type="button" class="btn btn-outline btn-sm quick-select-task" data-taskid="${task.taskId}">
-                  ${task.status === 'Revision Required' ? 'Resubmit Task' : 'Submit Task'}
+                  ${task.status === 'Revision Required' ? 'Resubmit Deliverable' : 'Submit Task'}
                 </button>
               ` : `
                 <span style="color: var(--success); font-weight: 600; display: inline-flex; align-items: center; gap: 0.3rem;">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  Task Completed
+                  Milestone Approved
                 </span>
               `}
             </div>
@@ -1634,20 +1638,17 @@
         container.appendChild(card);
       });
 
-      // Quick Select Task button behavior
       document.querySelectorAll(".quick-select-task").forEach(btn => {
         btn.addEventListener("click", () => {
           const taskId = btn.getAttribute("data-taskid");
           const dropdown = document.getElementById("submitTaskSelect");
           dropdown.value = taskId;
-          document.getElementById("submitGithubUrl").focus();
+          dropdown.dispatchEvent(new Event("change"));
+          document.getElementById("submitUrlInput").focus();
         });
       });
     }
 
-    /**
-     * Populate Task dropdown in submission sidebar
-     */
     function populateTaskDropdown(tasks) {
       const select = document.getElementById("submitTaskSelect");
       select.innerHTML = '<option value="" disabled selected>Select an assigned task</option>';
@@ -1655,18 +1656,14 @@
       tasks.forEach(t => {
         const opt = document.createElement("option");
         opt.value = t.taskId;
+        opt.setAttribute("data-subtype", t.submissionType || 'github');
         const statusNote = t.status === "Approved" ? " [Approved]" : t.status === "Under Review" ? " [Under Review]" : "";
-        opt.textContent = `Week ${t.week}: ${t.title}${statusNote}`;
-        if (t.status === "Approved") {
-          opt.disabled = true;
-        }
+        opt.textContent = `Task ${t.taskNum} (Week ${t.week}): ${t.title}${statusNote}`;
+        if (t.status === "Approved") opt.disabled = true;
         select.appendChild(opt);
       });
     }
 
-    /**
-     * Update Progress Numbers
-     */
     function updateProgressUI(data) {
       document.getElementById("sumTotal").textContent = data.totalTasks;
       document.getElementById("sumSubmitted").textContent = data.submittedTasks;
@@ -1676,7 +1673,7 @@
       document.getElementById("sumProgressPercent").textContent = `${data.percent}%`;
       document.getElementById("progressFill").style.width = `${data.percent}%`;
 
-      if (data.nextDeadline && data.nextDeadline !== "All deadlines concluded") {
+      if (data.nextDeadline && data.nextDeadline !== "All milestones concluded") {
         const d = new Date(data.nextDeadline).toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric' });
         document.getElementById("nextDeadlineText").textContent = `Next Target Deadline: ${d}`;
       } else {
@@ -1685,46 +1682,124 @@
     }
 
     /**
-     * Update Certificate Section
+     * Update Certificate Card & Multi-State Logic
      */
     function updateCertificateUI(data) {
-      const incompleteBox = document.getElementById("certIncompleteBox");
-      const completedBox = document.getElementById("certCompletedBox");
+      const statusBadge = document.getElementById("certStatusBadge");
+      const reqApproved = document.getElementById("certReqApproved");
+      const priceTag = document.getElementById("certPriceTag");
+      const vStatus = document.getElementById("certVerificationStatus");
+      const certIdRow = document.getElementById("certIdRow");
+      const certIdVal = document.getElementById("certIdVal");
 
-      if (data.isCompleted) {
-        incompleteBox.style.display = "none";
-        completedBox.style.display = "block";
+      const requestBtn = document.getElementById("requestCertBtn");
+      const linkedinBox = document.getElementById("linkedinSubmitBox");
+      const downloadBtn = document.getElementById("downloadCertBtn");
+      const downloadNote = document.getElementById("certDownloadNote");
 
-        document.getElementById("certDurationLabel").textContent = data.duration;
-        document.getElementById("certBasePrice").textContent = `₹${data.pricing.basePrice}`;
-        
-        if (data.pricing.isEarlyCompletion) {
-          document.getElementById("earlySurchargeRow").style.display = "flex";
-          document.getElementById("certSurcharge").textContent = `₹${data.pricing.earlySurcharge}`;
-        } else {
-          document.getElementById("earlySurchargeRow").style.display = "none";
-        }
+      reqApproved.textContent = `${data.approvedTasks} / ${data.totalTasks} Tasks Approved`;
+      priceTag.textContent = `₹${data.pricing.totalPrice} (Duration: ${data.duration})`;
 
-        document.getElementById("certTotalPrice").textContent = `₹${data.pricing.totalPrice}`;
+      if (data.certificateId) {
+        certIdRow.style.display = "flex";
+        certIdVal.textContent = data.certificateId;
       } else {
-        incompleteBox.style.display = "block";
-        completedBox.style.display = "none";
+        certIdRow.style.display = "none";
+      }
+
+      // Format Verification Status
+      if (data.verificationStatus === 'verified') {
+        vStatus.textContent = "VERIFIED (Public QR Active)";
+        vStatus.style.color = "var(--success)";
+      } else if (data.verificationStatus === 'linkedin_pending_review') {
+        vStatus.textContent = "LinkedIn Post Submitted (Under Review)";
+        vStatus.style.color = "var(--warning)";
+      } else if (data.verificationStatus === 'linkedin_pending_submission') {
+        vStatus.textContent = "Issued — LinkedIn Post Required for QR";
+        vStatus.style.color = "var(--accent-blue)";
+      } else {
+        vStatus.textContent = "Not Applicable";
+        vStatus.style.color = "var(--text-muted)";
+      }
+
+      // State 1: Incomplete Tasks
+      if (!data.isCompleted) {
+        statusBadge.className = "status-badge status-pending";
+        statusBadge.textContent = "Not Eligible";
+        requestBtn.style.display = "none";
+        linkedinBox.style.display = "none";
+        downloadBtn.disabled = true;
+        downloadNote.textContent = "Complete and obtain approvals on all tasks to unlock certificate eligibility.";
+        return;
+      }
+
+      // State 2: Tasks Completed, Awaiting Request
+      if (data.paymentStatus === 'not_requested') {
+        statusBadge.className = "status-badge status-review";
+        statusBadge.textContent = "Eligible - Ready to Request";
+        requestBtn.style.display = "block";
+        linkedinBox.style.display = "none";
+        downloadBtn.disabled = true;
+        downloadNote.textContent = "Click 'Request Optional Completion Certificate' to initiate issuance.";
+        return;
+      }
+
+      // State 3: Payment Verification Pending
+      if (data.paymentStatus === 'payment_pending_verification' && data.certificateStatus !== 'issued') {
+        statusBadge.className = "status-badge status-review";
+        statusBadge.textContent = "Payment Verification Pending";
+        requestBtn.style.display = "none";
+        linkedinBox.style.display = "none";
+        downloadBtn.disabled = true;
+        downloadNote.textContent = "Certificate request received. Invoice sent to email. Verification in progress.";
+        return;
+      }
+
+      // State 4: Issued
+      if (data.canDownloadCertificate) {
+        statusBadge.className = "status-badge status-approved";
+        statusBadge.textContent = data.verificationStatus === 'verified' ? "Verified" : "Issued";
+        requestBtn.style.display = "none";
+        downloadBtn.disabled = false;
+        downloadNote.textContent = "Official 2-page PDF certificate generated. Ready for download.";
+
+        // Show LinkedIn post box if post not yet verified
+        if (data.verificationStatus !== 'verified') {
+          linkedinBox.style.display = "block";
+        } else {
+          linkedinBox.style.display = "none";
+        }
       }
     }
 
     /**
-     * Task Submission Handler
+     * Submit Task Handler
      */
     function setupTaskSubmission() {
       const form = document.getElementById("submitTaskForm");
       const taskSelect = document.getElementById("submitTaskSelect");
-      const githubInput = document.getElementById("submitGithubUrl");
+      const urlInput = document.getElementById("submitUrlInput");
+      const urlLabel = document.getElementById("submitUrlLabel");
+      const urlHint = document.getElementById("submitUrlHint");
       const alertBox = document.getElementById("submitAlert");
       const submitBtn = document.getElementById("submitTaskBtn");
       const btnText = document.getElementById("submitBtnText");
       const spinner = document.getElementById("submitSpinner");
 
-      const githubRegex = /^https:\/\/(www\.)?github\.com\/[a-zA-Z0-9_\-\.]+\/[a-zA-Z0-9_\-\.]+\/?$/i;
+      // Dynamic placeholder & label adjustment based on task submission type
+      taskSelect.addEventListener("change", () => {
+        const selectedOpt = taskSelect.options[taskSelect.selectedIndex];
+        const subType = selectedOpt.getAttribute("data-subtype");
+        if (subType === 'linkedin') {
+          urlLabel.textContent = "LinkedIn Post URL (Mandatory Milestone)";
+          urlInput.placeholder = "https://linkedin.com/posts/your-announcement";
+          urlHint.textContent = "Tag Stypendless in your post and paste the URL here.";
+        } else {
+          urlLabel.textContent = "GitHub Repository URL";
+          urlInput.placeholder = "https://github.com/username/repository";
+          urlHint.textContent = "Must be a public repository containing your milestone source code.";
+        }
+      });
 
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -1737,17 +1812,16 @@
           return;
         }
 
-        const url = githubInput.value.trim();
-        if (!url || !githubRegex.test(url)) {
+        const url = urlInput.value.trim();
+        if (!url) {
           alertBox.className = "alert-panel error";
-          alertBox.textContent = "Please enter a valid GitHub repository URL (https://github.com/username/repository).";
+          alertBox.textContent = "Please enter your submission URL.";
           return;
         }
 
         const token = localStorage.getItem("stypendless_token");
-
         submitBtn.disabled = true;
-        btnText.textContent = "Submitting URL...";
+        btnText.textContent = "Submitting...";
         spinner.style.display = "inline-flex";
 
         try {
@@ -1760,7 +1834,7 @@
             body: JSON.stringify({
               internshipId: currentActiveWorkspace.internshipId,
               taskId: taskSelect.value,
-              githubUrl: url
+              submissionUrl: url
             })
           });
 
@@ -1768,27 +1842,167 @@
 
           if (response.ok && result.success) {
             alertBox.className = "alert-panel success";
-            alertBox.textContent = "Repository submitted successfully! Status updated to Under Review.";
-            githubInput.value = "";
-            // Reload workspace data
+            alertBox.textContent = result.message || "Submitted successfully! Status updated to Under Review.";
+            urlInput.value = "";
             await loadWorkspaceData(currentActiveWorkspace.internshipId);
           } else {
             alertBox.className = "alert-panel error";
-            alertBox.textContent = result.error || "Submission failed.";
+            alertBox.textContent = result.error || "Submission rejected.";
           }
         } catch (err) {
           alertBox.className = "alert-panel error";
-          alertBox.textContent = "Network error submitting task. Please verify backend service.";
+          alertBox.textContent = "Network error while submitting. Please verify backend connection.";
         } finally {
           submitBtn.disabled = false;
-          btnText.textContent = "Submit Repository URL";
+          btnText.textContent = "Submit for Review";
           spinner.style.display = "none";
         }
       });
     }
 
     /**
-     * Forgot Password Handler
+     * Documents & Certificate Actions (Downloads, Request, LinkedIn URL)
+     */
+    function setupDocumentsActions() {
+      // 1. Download Offer Letter PDF
+      document.getElementById("downloadOfferBtn").addEventListener("click", async () => {
+        if (!currentActiveWorkspace) return;
+        const token = localStorage.getItem("stypendless_token");
+        const btnText = document.getElementById("downloadOfferBtnText");
+
+        btnText.textContent = "Generating Offer Letter PDF...";
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/documents/offer-letter/${currentActiveWorkspace.internshipId}`, {
+            headers: { "Authorization": `Bearer ${token}` }
+          });
+
+          if (response.ok) {
+            const blob = await response.blob();
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = downloadUrl;
+            a.download = `Stypendless_Offer_Letter_${currentActiveWorkspace.internId}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(downloadUrl);
+          } else {
+            alert("Could not download Offer Letter. Please try again.");
+          }
+        } catch (err) {
+          alert("Network error downloading Offer Letter.");
+        } finally {
+          btnText.textContent = "Download Offer Letter (PDF)";
+        }
+      });
+
+      // 2. Download Certificate PDF
+      document.getElementById("downloadCertBtn").addEventListener("click", async () => {
+        if (!currentActiveWorkspace || !certificateInfo || !certificateInfo.canDownloadCertificate) return;
+        const token = localStorage.getItem("stypendless_token");
+        const btnText = document.getElementById("downloadCertBtnText");
+
+        btnText.textContent = "Generating 2-Page Certificate PDF...";
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/documents/certificate/${currentActiveWorkspace.internshipId}`, {
+            headers: { "Authorization": `Bearer ${token}` }
+          });
+
+          if (response.ok) {
+            const blob = await response.blob();
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = downloadUrl;
+            a.download = `Stypendless_Certificate_${certificateInfo.certificateId || currentActiveWorkspace.internId}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(downloadUrl);
+          } else {
+            const errJson = await response.json().catch(() => ({}));
+            alert(errJson.error || "Certificate is not ready for download.");
+          }
+        } catch (err) {
+          alert("Network error downloading Certificate.");
+        } finally {
+          btnText.textContent = "Download Completion Certificate (PDF)";
+        }
+      });
+
+      // 3. Request Certificate Modal Flow
+      const certModal = document.getElementById("certConfirmModal");
+      document.getElementById("requestCertBtn").addEventListener("click", () => {
+        if (!currentActiveWorkspace || !certificateInfo) return;
+        document.getElementById("modalCertDomain").textContent = currentActiveWorkspace.domain;
+        document.getElementById("modalCertInternId").textContent = currentActiveWorkspace.internId;
+        document.getElementById("modalCertPrice").textContent = `₹${certificateInfo.pricing.totalPrice}`;
+        certModal.classList.add("active");
+      });
+
+      document.getElementById("closeCertModalBtn").addEventListener("click", () => certModal.classList.remove("active"));
+      document.getElementById("cancelCertModalBtn").addEventListener("click", () => certModal.classList.remove("active"));
+
+      document.getElementById("confirmCertRequestBtn").addEventListener("click", async () => {
+        const token = localStorage.getItem("stypendless_token");
+        try {
+          const res = await fetch(`${API_BASE_URL}/api/certificates/request`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({ internshipId: currentActiveWorkspace.internshipId })
+          });
+          const result = await res.json();
+          certModal.classList.remove("active");
+          if (res.ok && result.success) {
+            alert(result.message);
+            await loadWorkspaceData(currentActiveWorkspace.internshipId);
+          } else {
+            alert(result.error || "Request failed.");
+          }
+        } catch (e) {
+          alert("Network error processing request.");
+        }
+      });
+
+      // 4. Submit LinkedIn Post URL for QR Verification Activation
+      document.getElementById("submitLinkedinBtn").addEventListener("click", async () => {
+        const input = document.getElementById("linkedinPostInput");
+        const url = input.value.trim();
+        if (!url) {
+          alert("Please enter your LinkedIn post URL.");
+          return;
+        }
+
+        const token = localStorage.getItem("stypendless_token");
+        try {
+          const res = await fetch(`${API_BASE_URL}/api/certificates/submit-linkedin`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              internshipId: currentActiveWorkspace.internshipId,
+              linkedinPostUrl: url
+            })
+          });
+          const result = await res.json();
+          if (res.ok && result.success) {
+            alert(result.message);
+            await loadWorkspaceData(currentActiveWorkspace.internshipId);
+          } else {
+            alert(result.error || "Submission failed.");
+          }
+        } catch (e) {
+          alert("Network error submitting LinkedIn URL.");
+        }
+      });
+    }
+
+    /**
+     * Password Reset Assistance Modal
      */
     function setupForgotPassword() {
       const forgotBtn = document.getElementById("forgotPasswordBtn");
@@ -1802,29 +2016,7 @@
     }
 
     /**
-     * Certificate Request Modal
-     */
-    function setupCertificateHandler() {
-      const btn = document.getElementById("requestCertificateBtn");
-      const modal = document.getElementById("certConfirmModal");
-      const close1 = document.getElementById("closeCertModalBtn");
-      const close2 = document.getElementById("closeCertModalBtn2");
-
-      btn.addEventListener("click", () => {
-        if (currentActiveWorkspace) {
-          document.getElementById("modalCertDomainName").textContent = currentActiveWorkspace.domain;
-          document.getElementById("modalCertInternId").textContent = currentActiveWorkspace.internId;
-          document.getElementById("modalCertPrice").textContent = document.getElementById("certTotalPrice").textContent;
-          modal.classList.add("active");
-        }
-      });
-
-      close1.addEventListener("click", () => modal.classList.remove("active"));
-      close2.addEventListener("click", () => modal.classList.remove("active"));
-    }
-
-    /**
-     * Logout Handler
+     * Logout
      */
     async function handleLogout() {
       const token = localStorage.getItem("stypendless_token");
@@ -1836,7 +2028,6 @@
           });
         }
       } catch (e) {
-        // Ignore network errors on logout
       } finally {
         localStorage.removeItem("stypendless_token");
         currentStudent = null;
